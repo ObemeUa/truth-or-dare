@@ -13,15 +13,17 @@ export default function App() {
   const [players, setPlayers] = useState([]);
   const [currentPlayerIndex, setCurrentPlayerIndex] = useState(0);
   const [adultMode, setAdultMode] = useState(false);
+  const [targetScore, setTargetScore] = useState(40);
   const [currentChoice, setCurrentChoice] = useState(null);
   const [currentQuestion, setCurrentQuestion] = useState('');
   const [winner, setWinner] = useState(null);
 
   const currentPlayer = players[currentPlayerIndex];
 
-  const handleStartGame = useCallback((playerNames, isAdult) => {
+  const handleStartGame = useCallback((playerNames, isAdult, pointsGoal = 40) => {
     setPlayers(playerNames.map(name => ({ name, score: 0 })));
     setAdultMode(isAdult);
+    setTargetScore(pointsGoal);
     setCurrentPlayerIndex(0);
     setWinner(null);
     resetUsedQuestions();
@@ -46,7 +48,7 @@ export default function App() {
       );
       
       // Check for winner
-      if (updated[currentPlayerIndex].score >= WINNING_SCORE) {
+      if (updated[currentPlayerIndex].score >= targetScore) {
         setWinner(updated[currentPlayerIndex]);
         setTimeout(() => setScreen('victory'), 0);
       } else {
@@ -56,7 +58,7 @@ export default function App() {
       
       return updated;
     });
-  }, [currentChoice, currentPlayerIndex]);
+  }, [currentChoice, currentPlayerIndex, targetScore]);
 
   const handleEndGame = useCallback((mode) => {
     if (mode === 'finish') {
@@ -106,6 +108,7 @@ export default function App() {
             players={players}
             currentPlayer={currentPlayer}
             currentPlayerIndex={currentPlayerIndex}
+            targetScore={targetScore}
             onChoice={handleChoice}
             onEndGame={handleEndGame}
           />

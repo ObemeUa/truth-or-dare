@@ -19,6 +19,7 @@ export default function StartScreen({ onStart }) {
   const [playerName, setPlayerName] = useState('');
   const [players, setPlayers] = useState([]);
   const [adultMode, setAdultMode] = useState(false);
+  const [targetScore, setTargetScore] = useState(40);
   const inputRef = useRef(null);
 
   const addPlayer = () => {
@@ -113,8 +114,31 @@ export default function StartScreen({ onStart }) {
         ))}
       </motion.div>
 
+      {/* ─── TARGET POINTS SELECTOR ─── */}
+      <motion.div variants={itemVariants} className="w-full max-w-sm mb-6">
+        <p className="text-gray-400 font-body text-xs mb-2 text-center tracking-wider uppercase">
+          🎯 Цель по очкам (до скольки играем):
+        </p>
+        <div className="flex justify-center gap-2">
+          {[20, 30, 40, 50, 75].map((pts) => (
+            <button
+              key={pts}
+              type="button"
+              onClick={() => setTargetScore(pts)}
+              className={`px-3.5 py-2 rounded-xl font-display text-xs font-bold transition-all ${
+                targetScore === pts
+                  ? 'bg-neon-blue/20 text-neon-blue border border-neon-blue shadow-[0_0_10px_rgba(0,240,255,0.3)] scale-105'
+                  : 'bg-dark-surface/80 text-gray-400 border border-gray-800 hover:border-gray-600'
+              }`}
+            >
+              {pts}
+            </button>
+          ))}
+        </div>
+      </motion.div>
+
       {/* ─── 18+ TOGGLE ─── */}
-      <motion.label variants={itemVariants} className="flex items-center gap-4 cursor-pointer mb-10 select-none">
+      <motion.label variants={itemVariants} className="flex items-center gap-4 cursor-pointer mb-8 select-none">
         <div className="relative" onClick={(e) => e.preventDefault()}>
           <input
             type="checkbox"
@@ -152,7 +176,7 @@ export default function StartScreen({ onStart }) {
           variants={itemVariants}
           whileHover={{ scale: 1.05, boxShadow: '0 0 30px rgba(255, 45, 149, 0.5), 0 0 60px rgba(191, 0, 255, 0.3)' }}
           whileTap={{ scale: 0.95 }}
-          onClick={() => onStart(players, adultMode)}
+          onClick={() => onStart(players, adultMode, targetScore)}
           className="bg-gradient-to-r from-neon-pink via-neon-purple to-neon-pink bg-[length:200%_100%] animate-pulse-neon text-white font-display text-lg sm:text-xl tracking-wider px-10 py-4 rounded-2xl shadow-neon-pink"
         >
           🎉 НАЧАТЬ ВЕЧЕРИНКУ

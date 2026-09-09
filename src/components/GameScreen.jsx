@@ -15,7 +15,7 @@ const itemVariants = {
   visible: { opacity: 1, y: 0, transition: { duration: 0.4 } }
 };
 
-export default function GameScreen({ players, currentPlayer, currentPlayerIndex, onChoice, onEndGame }) {
+export default function GameScreen({ players, currentPlayer, currentPlayerIndex, targetScore = 40, onChoice, onEndGame }) {
   const [showEndModal, setShowEndModal] = useState(false);
 
   // Sort players by score for leaderboard
@@ -51,7 +51,7 @@ export default function GameScreen({ players, currentPlayer, currentPlayerIndex,
         </h3>
         <div className="flex flex-wrap justify-center gap-2 max-h-28 overflow-y-auto leaderboard-scroll">
           {sortedPlayers.map((player, index) => {
-            const pct = Math.min(100, Math.round((player.score / 40) * 100));
+            const pct = Math.min(100, Math.round((player.score / targetScore) * 100));
             return (
               <div
                 key={player.name}
@@ -111,7 +111,7 @@ export default function GameScreen({ players, currentPlayer, currentPlayerIndex,
             <div className="flex justify-between items-center text-xs font-body mb-2">
               <span className="text-gray-400">Прогресс игрока</span>
               <span className="font-display font-bold text-neon-blue">
-                {currentPlayer?.score || 0} / 40 <span className="text-gray-500 font-normal">очков</span>
+                {currentPlayer?.score || 0} / {targetScore} <span className="text-gray-500 font-normal">очков</span>
               </span>
             </div>
 
@@ -119,15 +119,15 @@ export default function GameScreen({ players, currentPlayer, currentPlayerIndex,
             <div className="w-full bg-gray-900 rounded-full h-3 p-0.5 border border-gray-800 relative overflow-hidden">
               <motion.div
                 initial={{ width: 0 }}
-                animate={{ width: `${Math.min(100, Math.round(((currentPlayer?.score || 0) / 40) * 100))}%` }}
+                animate={{ width: `${Math.min(100, Math.round(((currentPlayer?.score || 0) / targetScore) * 100))}%` }}
                 transition={{ duration: 0.6, ease: 'easeOut' }}
                 className="h-full bg-gradient-to-r from-neon-blue via-neon-purple to-neon-pink rounded-full shadow-[0_0_12px_#00f0ff] relative"
               />
             </div>
 
             <p className="text-right text-[10px] text-gray-500 font-body mt-1.5">
-              {40 - (currentPlayer?.score || 0) > 0 
-                ? `Осталось ${40 - (currentPlayer?.score || 0)} очк. до победы` 
+              {targetScore - (currentPlayer?.score || 0) > 0 
+                ? `Осталось ${targetScore - (currentPlayer?.score || 0)} очк. до победы` 
                 : 'Победа! 🎉'}
             </p>
           </div>
@@ -171,7 +171,7 @@ export default function GameScreen({ players, currentPlayer, currentPlayerIndex,
         variants={itemVariants}
         className="text-center text-gray-600 font-body text-xs mt-8 tracking-wider"
       >
-        До победы: 40 очков
+        До победы: {targetScore} очков
       </motion.p>
 
       {/* ─── END GAME MODAL ─── */}
