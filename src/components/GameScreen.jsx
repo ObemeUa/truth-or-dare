@@ -30,60 +30,70 @@ export default function GameScreen({ players, currentPlayer, currentPlayerIndex,
       initial="hidden"
       animate="visible"
       exit="exit"
-      className="min-h-screen min-h-[100dvh] flex flex-col px-5 py-6 relative"
+      className="min-h-screen min-h-[100dvh] flex flex-col px-4 py-5 relative"
     >
       {/* ─── TOP BAR WITH END GAME BUTTON ─── */}
-      <motion.div variants={itemVariants} className="flex justify-between items-center mb-4">
-        <span className="text-neon-blue/40 font-display text-[10px] tracking-[0.2em] uppercase">
-          Neon Party
+      <motion.div variants={itemVariants} className="flex justify-between items-center mb-3">
+        <span className="text-neon-blue/50 font-display text-[10px] tracking-[0.2em] uppercase font-bold">
+          NEON PARTY
         </span>
         <button
           onClick={() => setShowEndModal(true)}
-          className="text-gray-500 hover:text-neon-pink text-xs font-body border border-gray-800 hover:border-neon-pink/40 px-3 py-1.5 rounded-lg transition-all backdrop-blur-sm"
+          className="text-gray-400 hover:text-neon-pink text-xs font-body border border-gray-800 hover:border-neon-pink/40 px-3 py-1.5 rounded-xl transition-all backdrop-blur-sm bg-dark-surface/60"
         >
           🛑 Завершить игру
         </button>
       </motion.div>
 
       {/* ─── LEADERBOARD ─── */}
-      <motion.div variants={itemVariants} className="mb-6">
-        <h3 className="text-gray-500 font-display text-[10px] tracking-[0.25em] uppercase mb-3 text-center">
+      <motion.div variants={itemVariants} className="mb-5">
+        <h3 className="text-gray-500 font-display text-[10px] tracking-[0.25em] uppercase mb-2.5 text-center">
           Таблица лидеров
         </h3>
-        <div className="flex flex-wrap justify-center gap-2.5 max-h-32 overflow-y-auto leaderboard-scroll">
+        <div className="flex flex-wrap justify-center gap-2.5 max-h-36 overflow-y-auto leaderboard-scroll px-1 py-1">
           {sortedPlayers.map((player, index) => {
             const pct = Math.min(100, Math.round((player.score / targetScore) * 100));
+            const isActive = player.originalIndex === currentPlayerIndex;
+            const isLeader = index === 0 && sortedPlayers.length > 1 && player.score > 0;
+
             return (
               <div
                 key={player.name}
-                className={`score-badge rounded-xl px-3 py-2 flex flex-col justify-center min-w-[110px] text-sm font-body ${
-                  player.originalIndex === currentPlayerIndex
-                    ? 'border-neon-blue/60 ring-1 ring-neon-blue/30'
-                    : ''
+                className={`bg-dark-surface/90 border rounded-xl px-3 py-2 flex flex-col justify-between min-w-[135px] max-w-[160px] flex-1 transition-all ${
+                  isActive
+                    ? 'border-neon-blue shadow-[0_0_15px_rgba(0,240,255,0.25)] ring-1 ring-neon-blue/40'
+                    : 'border-gray-800/80 hover:border-gray-700'
                 }`}
               >
-                <div className="flex items-center justify-between gap-2 mb-1">
-                  <div className="flex items-center gap-1.5 truncate max-w-[95px]">
+                <div className="flex items-center justify-between gap-2 mb-1.5">
+                  <div className="flex items-center gap-2 min-w-0">
                     <Avatar gender={player.gender} mood={player.mood || 'idle'} size="sm" />
-                    <span className={`${
-                      player.originalIndex === currentPlayerIndex ? 'text-neon-blue font-semibold' : 'text-gray-300'
-                    } text-xs truncate`}>
-                      {player.name}
-                    </span>
+                    <div className="flex flex-col min-w-0">
+                      <div className="flex items-center gap-1">
+                        <span className={`font-body text-xs font-semibold truncate ${
+                          isActive ? 'text-neon-blue' : 'text-gray-200'
+                        }`}>
+                          {player.name}
+                        </span>
+                        {isLeader && (
+                          <span className="text-yellow-400 text-xs flex-shrink-0">👑</span>
+                        )}
+                      </div>
+                      <span className="text-[9px] text-gray-500 font-body uppercase tracking-wider">
+                        {player.gender === 'female' ? 'Девушка' : 'Парень'}
+                      </span>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-1">
-                    {index === 0 && sortedPlayers.length > 1 && player.score > 0 && (
-                      <span className="text-yellow-400 text-xs">👑</span>
-                    )}
-                    <span className="text-neon-purple font-display text-xs font-bold">
-                      {player.score}
-                    </span>
-                  </div>
+
+                  <span className="text-neon-purple font-display text-sm font-bold flex-shrink-0 ml-1">
+                    {player.score}
+                  </span>
                 </div>
-                {/* Mini progress bar */}
-                <div className="w-full bg-gray-800/80 rounded-full h-1 overflow-hidden">
+
+                {/* Progress bar */}
+                <div className="w-full bg-gray-900 rounded-full h-1.5 overflow-hidden border border-gray-800/50">
                   <div
-                    className="bg-gradient-to-r from-neon-blue to-neon-pink h-full rounded-full transition-all duration-500"
+                    className="bg-gradient-to-r from-neon-blue via-neon-purple to-neon-pink h-full rounded-full transition-all duration-500"
                     style={{ width: `${pct}%` }}
                   />
                 </div>
@@ -97,15 +107,16 @@ export default function GameScreen({ players, currentPlayer, currentPlayerIndex,
       <div className="flex-1 flex flex-col items-center justify-center">
         <motion.div
           variants={itemVariants}
-          className="text-center mb-6 w-full max-w-sm flex flex-col items-center"
+          className="text-center mb-5 w-full max-w-sm flex flex-col items-center"
         >
-          <p className="text-gray-500 font-body text-sm mb-3 tracking-wider uppercase">Сейчас ходит</p>
+          <p className="text-gray-500 font-body text-xs mb-2 tracking-wider uppercase">Сейчас ходит</p>
           
           {/* Animated Large Avatar */}
           <Avatar
             gender={currentPlayer?.gender}
             mood={currentPlayer?.mood || 'idle'}
             size="xl"
+            showBadge={true}
             className="mb-3"
           />
 
@@ -114,17 +125,17 @@ export default function GameScreen({ players, currentPlayer, currentPlayerIndex,
             initial={{ opacity: 0, scale: 0.5, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             transition={{ type: 'spring', stiffness: 200, damping: 15 }}
-            className="font-display text-4xl sm:text-5xl md:text-6xl font-black neon-text-blue animate-glow-blue mb-4"
+            className="font-display text-3xl sm:text-4xl md:text-5xl font-black neon-text-blue animate-glow-blue mb-3"
           >
             {currentPlayer?.name}
           </motion.h2>
 
           {/* ─── MAIN PROGRESS BAR ─── */}
-          <div className="bg-dark-surface/90 border border-neon-blue/30 rounded-2xl p-4 backdrop-blur-md shadow-[0_0_15px_rgba(0,240,255,0.08)] w-full">
-            <div className="flex justify-between items-center text-xs font-body mb-2">
-              <span className="text-gray-400">Прогресс игрока</span>
-              <span className="font-display font-bold text-neon-blue">
-                {currentPlayer?.score || 0} / {targetScore} <span className="text-gray-500 font-normal">очков</span>
+          <div className="bg-dark-surface/90 border border-neon-blue/30 rounded-2xl p-3.5 backdrop-blur-md shadow-[0_0_15px_rgba(0,240,255,0.08)] w-full">
+            <div className="flex justify-between items-center text-xs font-body mb-1.5">
+              <span className="text-gray-400 font-medium">Прогресс игрока</span>
+              <span className="font-display font-bold text-neon-blue text-sm">
+                {currentPlayer?.score || 0} / {targetScore} <span className="text-gray-500 font-normal text-xs">очков</span>
               </span>
             </div>
 
@@ -138,7 +149,7 @@ export default function GameScreen({ players, currentPlayer, currentPlayerIndex,
               />
             </div>
 
-            <p className="text-right text-[10px] text-gray-500 font-body mt-1.5">
+            <p className="text-right text-[10px] text-gray-500 font-body mt-1">
               {targetScore - (currentPlayer?.score || 0) > 0 
                 ? `Осталось ${targetScore - (currentPlayer?.score || 0)} очк. до победы` 
                 : 'Победа! 🎉'}
@@ -148,21 +159,21 @@ export default function GameScreen({ players, currentPlayer, currentPlayerIndex,
 
         <motion.p
           variants={itemVariants}
-          className="text-gray-400 font-body text-base sm:text-lg mb-6 text-center"
+          className="text-gray-400 font-body text-sm sm:text-base mb-5 text-center"
         >
           Что выбираешь?
         </motion.p>
 
         {/* ─── CHOICE BUTTONS ─── */}
-        <motion.div variants={itemVariants} className="flex flex-col sm:flex-row gap-4 w-full max-w-sm">
+        <motion.div variants={itemVariants} className="flex flex-col sm:flex-row gap-3.5 w-full max-w-sm">
           <motion.button
             whileHover={{ scale: 1.04, boxShadow: '0 0 25px rgba(0, 240, 255, 0.4), 0 0 50px rgba(0, 240, 255, 0.2)' }}
             whileTap={{ scale: 0.96 }}
             onClick={() => onChoice('truth')}
-            className="flex-1 btn-neon-blue rounded-2xl py-6 sm:py-8 font-display text-xl sm:text-2xl font-bold tracking-wider relative overflow-hidden group"
+            className="flex-1 btn-neon-blue rounded-2xl py-5 sm:py-7 font-display text-xl sm:text-2xl font-bold tracking-wider relative overflow-hidden group"
           >
             <span className="relative z-10">🔮 ПРАВДА</span>
-            <span className="block text-[10px] text-neon-blue/50 font-body mt-1 tracking-normal relative z-10">+1 очко</span>
+            <span className="block text-[10px] text-neon-blue/60 font-body mt-0.5 tracking-normal relative z-10">+1 очко</span>
             <div className="absolute inset-0 bg-gradient-to-t from-neon-blue/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
           </motion.button>
 
@@ -170,10 +181,10 @@ export default function GameScreen({ players, currentPlayer, currentPlayerIndex,
             whileHover={{ scale: 1.04, boxShadow: '0 0 25px rgba(255, 45, 149, 0.4), 0 0 50px rgba(255, 45, 149, 0.2)' }}
             whileTap={{ scale: 0.96 }}
             onClick={() => onChoice('dare')}
-            className="flex-1 btn-neon-pink rounded-2xl py-6 sm:py-8 font-display text-xl sm:text-2xl font-bold tracking-wider relative overflow-hidden group"
+            className="flex-1 btn-neon-pink rounded-2xl py-5 sm:py-7 font-display text-xl sm:text-2xl font-bold tracking-wider relative overflow-hidden group"
           >
             <span className="relative z-10">⚡ ДЕЙСТВИЕ</span>
-            <span className="block text-[10px] text-neon-pink/50 font-body mt-1 tracking-normal relative z-10">+2 очка</span>
+            <span className="block text-[10px] text-neon-pink/60 font-body mt-0.5 tracking-normal relative z-10">+2 очка</span>
             <div className="absolute inset-0 bg-gradient-to-t from-neon-pink/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
           </motion.button>
         </motion.div>
@@ -182,7 +193,7 @@ export default function GameScreen({ players, currentPlayer, currentPlayerIndex,
       {/* ─── SCORE TO WIN ─── */}
       <motion.p
         variants={itemVariants}
-        className="text-center text-gray-600 font-body text-xs mt-6 tracking-wider"
+        className="text-center text-gray-600 font-body text-xs mt-5 tracking-wider"
       >
         До победы: {targetScore} очков
       </motion.p>
