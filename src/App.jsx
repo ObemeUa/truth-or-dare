@@ -6,8 +6,6 @@ import CardScreen from './components/CardScreen';
 import VictoryScreen from './components/VictoryScreen';
 import { getRandomQuestion, resetUsedQuestions } from './data/questions';
 
-const WINNING_SCORE = 40;
-
 export default function App() {
   const [screen, setScreen] = useState('start');
   const [players, setPlayers] = useState([]);
@@ -20,8 +18,12 @@ export default function App() {
 
   const currentPlayer = players[currentPlayerIndex];
 
-  const handleStartGame = useCallback((playerNames, isAdult, pointsGoal = 40) => {
-    setPlayers(playerNames.map(name => ({ name, score: 0 })));
+  const handleStartGame = useCallback((playerList, isAdult, pointsGoal = 40) => {
+    const formattedPlayers = playerList.map(p => typeof p === 'string' 
+      ? { name: p, gender: 'male', score: 0, mood: 'idle' }
+      : { name: p.name, gender: p.gender || 'male', score: 0, mood: 'idle' }
+    );
+    setPlayers(formattedPlayers);
     setAdultMode(isAdult);
     setTargetScore(pointsGoal);
     setCurrentPlayerIndex(0);
@@ -39,17 +41,18 @@ export default function App() {
 
   const handleResult = useCallback((completed) => {
     const points = completed ? (currentChoice === 'truth' ? 1 : 2) : 0;
+    const mood = completed ? 'happy' : 'sad';
     
     setPlayers(prev => {
       const updated = prev.map((p, i) => 
         i === currentPlayerIndex 
-          ? { ...p, score: p.score + points }
-          : p
+          ? { ...p, score: p.score + points, mood }
+          : { ...p, mood: 'idle' }
       );
       
       // Check for winner
       if (updated[currentPlayerIndex].score >= targetScore) {
-        setWinner(updated[currentPlayerIndex]);
+        setWinner({ ...updated[currentPlayerIndex], mood: 'victory' });
         setTimeout(() => setScreen('victory'), 0);
       } else {
         setCurrentPlayerIndex(idx => (idx + 1) % updated.length);
@@ -63,7 +66,7 @@ export default function App() {
   const handleEndGame = useCallback((mode) => {
     if (mode === 'finish') {
       const leader = [...players].sort((a, b) => b.score - a.score)[0] || currentPlayer;
-      setWinner(leader);
+      setWinner({ ...leader, mood: 'victory' });
       setScreen('victory');
     } else {
       setPlayers([]);
@@ -78,7 +81,7 @@ export default function App() {
   }, [players, currentPlayer]);
 
   const handlePlayAgain = useCallback(() => {
-    setPlayers(prev => prev.map(p => ({ ...p, score: 0 })));
+    setPlayers(prev => prev.map(p => ({ ...p, score: 0, mood: 'idle' })));
     setCurrentPlayerIndex(0);
     setWinner(null);
     resetUsedQuestions();
@@ -118,7 +121,7 @@ export default function App() {
             key="card"
             question={currentQuestion}
             choice={currentChoice}
-            playerName={currentPlayer?.name}
+            currentPlayer={currentPlayer}
             onResult={handleResult}
           />
         )}

@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import confetti from 'canvas-confetti';
+import Avatar from './Avatar';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -66,60 +67,71 @@ export default function VictoryScreen({ winner, players, onPlayAgain, onNewGame 
       exit="exit"
       className="min-h-screen min-h-[100dvh] flex flex-col items-center justify-center px-5 py-8"
     >
-      {/* ─── TROPHY ─── */}
+      {/* ─── WINNER AVATAR & TROPHY ─── */}
       <motion.div
         variants={itemVariants}
-        className="text-7xl sm:text-8xl mb-4 animate-float"
+        className="flex flex-col items-center mb-4 relative"
       >
-        🏆
+        <div className="absolute -top-6 text-4xl animate-bounce">👑</div>
+        <Avatar
+          gender={winner?.gender}
+          mood="victory"
+          size="xl"
+          className="mb-2 mt-4"
+        />
       </motion.div>
 
       {/* ─── WINNER NAME ─── */}
       <motion.div variants={itemVariants} className="text-center mb-8">
-        <p className="text-gray-400 font-body text-sm mb-3 tracking-wider uppercase">Победитель</p>
+        <p className="text-gray-400 font-body text-xs mb-1 tracking-wider uppercase">Победитель вечеринки</p>
         <h1 className="font-display text-4xl sm:text-5xl md:text-6xl font-black neon-text-pink animate-glow-pink mb-2">
           {winner?.name}
         </h1>
-        <p className="font-display text-xl text-neon-purple">
+        <p className="font-display text-xl text-neon-purple font-bold">
           {winner?.score} очков 🎯
         </p>
       </motion.div>
 
       {/* ─── FINAL SCOREBOARD ─── */}
-      <motion.div variants={itemVariants} className="w-full max-w-xs mb-10">
+      <motion.div variants={itemVariants} className="w-full max-w-xs mb-8">
         <h3 className="text-gray-500 font-display text-[10px] tracking-[0.25em] uppercase mb-3 text-center">
           Финальный счёт
         </h3>
-        <div className="space-y-2">
-          {finalScores.map((player, index) => (
-            <motion.div
-              key={player.name}
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.5 + index * 0.1 }}
-              className={`flex items-center justify-between px-4 py-2.5 rounded-xl ${
-                index === 0
-                  ? 'bg-neon-pink/10 border border-neon-pink/30'
-                  : 'bg-dark-surface/50 border border-gray-800/50'
-              }`}
-            >
-              <div className="flex items-center gap-3">
-                <span className="font-display text-xs font-bold text-gray-500">
-                  {index === 0 ? '👑' : `#${index + 1}`}
-                </span>
-                <span className={`font-body text-sm ${
-                  index === 0 ? 'text-neon-pink' : 'text-gray-400'
+        <div className="space-y-2 max-h-48 overflow-y-auto leaderboard-scroll pr-1">
+          {finalScores.map((player, index) => {
+            const isWinner = index === 0;
+            const mood = isWinner ? 'victory' : 'sad';
+            return (
+              <motion.div
+                key={player.name}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.4 + index * 0.1 }}
+                className={`flex items-center justify-between px-3 py-2 rounded-xl ${
+                  isWinner
+                    ? 'bg-neon-pink/10 border border-neon-pink/40 shadow-[0_0_15px_rgba(255,45,149,0.15)]'
+                    : 'bg-dark-surface/50 border border-gray-800/50'
+                }`}
+              >
+                <div className="flex items-center gap-3">
+                  <span className="font-display text-xs font-bold text-gray-500 min-w-[20px]">
+                    {isWinner ? '👑' : `#${index + 1}`}
+                  </span>
+                  <Avatar gender={player.gender} mood={mood} size="sm" />
+                  <span className={`font-body text-sm font-medium ${
+                    isWinner ? 'text-neon-pink font-bold' : 'text-gray-400'
+                  }`}>
+                    {player.name}
+                  </span>
+                </div>
+                <span className={`font-display text-sm font-bold ${
+                  isWinner ? 'text-neon-pink' : 'text-gray-500'
                 }`}>
-                  {player.name}
+                  {player.score}
                 </span>
-              </div>
-              <span className={`font-display text-sm font-bold ${
-                index === 0 ? 'text-neon-pink' : 'text-gray-500'
-              }`}>
-                {player.score}
-              </span>
-            </motion.div>
-          ))}
+              </motion.div>
+            );
+          })}
         </div>
       </motion.div>
 

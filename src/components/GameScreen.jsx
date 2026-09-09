@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import Avatar from './Avatar';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -49,35 +50,38 @@ export default function GameScreen({ players, currentPlayer, currentPlayerIndex,
         <h3 className="text-gray-500 font-display text-[10px] tracking-[0.25em] uppercase mb-3 text-center">
           Таблица лидеров
         </h3>
-        <div className="flex flex-wrap justify-center gap-2 max-h-28 overflow-y-auto leaderboard-scroll">
+        <div className="flex flex-wrap justify-center gap-2.5 max-h-32 overflow-y-auto leaderboard-scroll">
           {sortedPlayers.map((player, index) => {
             const pct = Math.min(100, Math.round((player.score / targetScore) * 100));
             return (
               <div
                 key={player.name}
-                className={`score-badge rounded-lg px-3 py-1.5 flex flex-col justify-center min-w-[100px] text-sm font-body ${
+                className={`score-badge rounded-xl px-3 py-2 flex flex-col justify-center min-w-[110px] text-sm font-body ${
                   player.originalIndex === currentPlayerIndex
                     ? 'border-neon-blue/60 ring-1 ring-neon-blue/30'
                     : ''
                 }`}
               >
-                <div className="flex items-center justify-between gap-2">
-                  <div className="flex items-center gap-1 truncate max-w-[90px]">
-                    {index === 0 && sortedPlayers.length > 1 && player.score > 0 && (
-                      <span className="text-yellow-400 text-xs flex-shrink-0">👑</span>
-                    )}
+                <div className="flex items-center justify-between gap-2 mb-1">
+                  <div className="flex items-center gap-1.5 truncate max-w-[95px]">
+                    <Avatar gender={player.gender} mood={player.mood || 'idle'} size="sm" />
                     <span className={`${
                       player.originalIndex === currentPlayerIndex ? 'text-neon-blue font-semibold' : 'text-gray-300'
                     } text-xs truncate`}>
                       {player.name}
                     </span>
                   </div>
-                  <span className="text-neon-purple font-display text-xs font-bold">
-                    {player.score}
-                  </span>
+                  <div className="flex items-center gap-1">
+                    {index === 0 && sortedPlayers.length > 1 && player.score > 0 && (
+                      <span className="text-yellow-400 text-xs">👑</span>
+                    )}
+                    <span className="text-neon-purple font-display text-xs font-bold">
+                      {player.score}
+                    </span>
+                  </div>
                 </div>
                 {/* Mini progress bar */}
-                <div className="w-full bg-gray-800/80 rounded-full h-1 mt-1 overflow-hidden">
+                <div className="w-full bg-gray-800/80 rounded-full h-1 overflow-hidden">
                   <div
                     className="bg-gradient-to-r from-neon-blue to-neon-pink h-full rounded-full transition-all duration-500"
                     style={{ width: `${pct}%` }}
@@ -93,9 +97,18 @@ export default function GameScreen({ players, currentPlayer, currentPlayerIndex,
       <div className="flex-1 flex flex-col items-center justify-center">
         <motion.div
           variants={itemVariants}
-          className="text-center mb-8 w-full max-w-sm"
+          className="text-center mb-6 w-full max-w-sm flex flex-col items-center"
         >
-          <p className="text-gray-500 font-body text-sm mb-2 tracking-wider uppercase">Сейчас ходит</p>
+          <p className="text-gray-500 font-body text-sm mb-3 tracking-wider uppercase">Сейчас ходит</p>
+          
+          {/* Animated Large Avatar */}
+          <Avatar
+            gender={currentPlayer?.gender}
+            mood={currentPlayer?.mood || 'idle'}
+            size="xl"
+            className="mb-3"
+          />
+
           <motion.h2
             key={currentPlayer?.name}
             initial={{ opacity: 0, scale: 0.5, y: 20 }}
@@ -107,7 +120,7 @@ export default function GameScreen({ players, currentPlayer, currentPlayerIndex,
           </motion.h2>
 
           {/* ─── MAIN PROGRESS BAR ─── */}
-          <div className="bg-dark-surface/90 border border-neon-blue/30 rounded-2xl p-4 backdrop-blur-md shadow-[0_0_15px_rgba(0,240,255,0.08)]">
+          <div className="bg-dark-surface/90 border border-neon-blue/30 rounded-2xl p-4 backdrop-blur-md shadow-[0_0_15px_rgba(0,240,255,0.08)] w-full">
             <div className="flex justify-between items-center text-xs font-body mb-2">
               <span className="text-gray-400">Прогресс игрока</span>
               <span className="font-display font-bold text-neon-blue">
@@ -135,7 +148,7 @@ export default function GameScreen({ players, currentPlayer, currentPlayerIndex,
 
         <motion.p
           variants={itemVariants}
-          className="text-gray-400 font-body text-base sm:text-lg mb-8 text-center"
+          className="text-gray-400 font-body text-base sm:text-lg mb-6 text-center"
         >
           Что выбираешь?
         </motion.p>
@@ -169,7 +182,7 @@ export default function GameScreen({ players, currentPlayer, currentPlayerIndex,
       {/* ─── SCORE TO WIN ─── */}
       <motion.p
         variants={itemVariants}
-        className="text-center text-gray-600 font-body text-xs mt-8 tracking-wider"
+        className="text-center text-gray-600 font-body text-xs mt-6 tracking-wider"
       >
         До победы: {targetScore} очков
       </motion.p>

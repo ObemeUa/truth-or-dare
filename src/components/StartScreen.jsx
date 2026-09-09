@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react';
 import { motion } from 'framer-motion';
+import Avatar from './Avatar';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -17,6 +18,7 @@ const itemVariants = {
 
 export default function StartScreen({ onStart }) {
   const [playerName, setPlayerName] = useState('');
+  const [playerGender, setPlayerGender] = useState('male');
   const [players, setPlayers] = useState([]);
   const [adultMode, setAdultMode] = useState(false);
   const [targetScore, setTargetScore] = useState(40);
@@ -24,8 +26,8 @@ export default function StartScreen({ onStart }) {
 
   const addPlayer = () => {
     const name = playerName.trim();
-    if (name && name.length <= 15 && !players.includes(name) && players.length < 10) {
-      setPlayers([...players, name]);
+    if (name && name.length <= 15 && !players.some(p => p.name === name) && players.length < 10) {
+      setPlayers([...players, { name, gender: playerGender }]);
       setPlayerName('');
       inputRef.current?.focus();
     }
@@ -48,7 +50,7 @@ export default function StartScreen({ onStart }) {
       className="min-h-screen min-h-[100dvh] flex flex-col items-center justify-center px-5 py-8"
     >
       {/* ─── NEON TITLE ─── */}
-      <motion.div variants={itemVariants} className="text-center mb-10">
+      <motion.div variants={itemVariants} className="text-center mb-8">
         <h1 className="font-display text-5xl sm:text-6xl md:text-7xl font-black neon-text-blue animate-glow-blue mb-2">
           ПРАВДА
         </h1>
@@ -59,8 +61,34 @@ export default function StartScreen({ onStart }) {
         <p className="text-gray-500 font-body text-xs mt-4 tracking-[0.3em] uppercase">Neon Party Edition</p>
       </motion.div>
 
-      {/* ─── PLAYER INPUT ─── */}
+      {/* ─── PLAYER INPUT & GENDER TOGGLE ─── */}
       <motion.div variants={itemVariants} className="w-full max-w-sm mb-4">
+        {/* Gender selector tabs */}
+        <div className="flex justify-center gap-3 mb-2">
+          <button
+            type="button"
+            onClick={() => setPlayerGender('male')}
+            className={`px-3 py-1 rounded-lg font-body text-xs flex items-center gap-1.5 transition-all ${
+              playerGender === 'male'
+                ? 'bg-neon-blue/20 text-neon-blue border border-neon-blue'
+                : 'bg-dark-surface text-gray-500 border border-gray-800'
+            }`}
+          >
+            <span>👨</span> Парень
+          </button>
+          <button
+            type="button"
+            onClick={() => setPlayerGender('female')}
+            className={`px-3 py-1 rounded-lg font-body text-xs flex items-center gap-1.5 transition-all ${
+              playerGender === 'female'
+                ? 'bg-neon-pink/20 text-neon-pink border border-neon-pink'
+                : 'bg-dark-surface text-gray-500 border border-gray-800'
+            }`}
+          >
+            <span>👩</span> Девушка
+          </button>
+        </div>
+
         <div className="flex gap-2">
           <input
             ref={inputRef}
@@ -89,18 +117,19 @@ export default function StartScreen({ onStart }) {
 
       {/* ─── PLAYER LIST ─── */}
       <motion.div variants={itemVariants} className="w-full max-w-sm mb-6 space-y-2 max-h-48 overflow-y-auto leaderboard-scroll">
-        {players.map((name, index) => (
+        {players.map((player, index) => (
           <motion.div
-            key={name}
+            key={player.name}
             initial={{ opacity: 0, x: -30, scale: 0.9 }}
             animate={{ opacity: 1, x: 0, scale: 1 }}
             exit={{ opacity: 0, x: 30 }}
             transition={{ type: 'spring', stiffness: 300, damping: 25 }}
-            className="flex items-center justify-between bg-dark-surface/80 border border-gray-800 rounded-xl px-4 py-2.5 backdrop-blur-sm"
+            className="flex items-center justify-between bg-dark-surface/80 border border-gray-800 rounded-xl px-3 py-2 backdrop-blur-sm"
           >
             <div className="flex items-center gap-3">
               <span className="text-neon-blue/50 font-display text-xs font-bold">{String(index + 1).padStart(2, '0')}</span>
-              <span className="text-white font-body text-sm">{name}</span>
+              <Avatar gender={player.gender} mood="idle" size="sm" />
+              <span className="text-white font-body text-sm font-medium">{player.name}</span>
             </div>
             <motion.button
               whileHover={{ scale: 1.2, rotate: 90 }}
