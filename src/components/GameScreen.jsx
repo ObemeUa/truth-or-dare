@@ -49,29 +49,43 @@ export default function GameScreen({ players, currentPlayer, currentPlayerIndex,
         <h3 className="text-gray-500 font-display text-[10px] tracking-[0.25em] uppercase mb-3 text-center">
           Таблица лидеров
         </h3>
-        <div className="flex flex-wrap justify-center gap-2 max-h-24 overflow-y-auto leaderboard-scroll">
-          {sortedPlayers.map((player, index) => (
-            <div
-              key={player.name}
-              className={`score-badge rounded-lg px-3 py-1.5 flex items-center gap-2 text-sm font-body ${
-                player.originalIndex === currentPlayerIndex
-                  ? 'border-neon-blue/60 ring-1 ring-neon-blue/30'
-                  : ''
-              }`}
-            >
-              {index === 0 && sortedPlayers.length > 1 && player.score > 0 && (
-                <span className="text-yellow-400 text-xs">👑</span>
-              )}
-              <span className={`${
-                player.originalIndex === currentPlayerIndex ? 'text-neon-blue' : 'text-gray-300'
-              } text-xs sm:text-sm truncate max-w-[80px]`}>
-                {player.name}
-              </span>
-              <span className="text-neon-purple font-display text-xs font-bold">
-                {player.score}
-              </span>
-            </div>
-          ))}
+        <div className="flex flex-wrap justify-center gap-2 max-h-28 overflow-y-auto leaderboard-scroll">
+          {sortedPlayers.map((player, index) => {
+            const pct = Math.min(100, Math.round((player.score / 40) * 100));
+            return (
+              <div
+                key={player.name}
+                className={`score-badge rounded-lg px-3 py-1.5 flex flex-col justify-center min-w-[100px] text-sm font-body ${
+                  player.originalIndex === currentPlayerIndex
+                    ? 'border-neon-blue/60 ring-1 ring-neon-blue/30'
+                    : ''
+                }`}
+              >
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-1 truncate max-w-[90px]">
+                    {index === 0 && sortedPlayers.length > 1 && player.score > 0 && (
+                      <span className="text-yellow-400 text-xs flex-shrink-0">👑</span>
+                    )}
+                    <span className={`${
+                      player.originalIndex === currentPlayerIndex ? 'text-neon-blue font-semibold' : 'text-gray-300'
+                    } text-xs truncate`}>
+                      {player.name}
+                    </span>
+                  </div>
+                  <span className="text-neon-purple font-display text-xs font-bold">
+                    {player.score}
+                  </span>
+                </div>
+                {/* Mini progress bar */}
+                <div className="w-full bg-gray-800/80 rounded-full h-1 mt-1 overflow-hidden">
+                  <div
+                    className="bg-gradient-to-r from-neon-blue to-neon-pink h-full rounded-full transition-all duration-500"
+                    style={{ width: `${pct}%` }}
+                  />
+                </div>
+              </div>
+            );
+          })}
         </div>
       </motion.div>
 
@@ -79,7 +93,7 @@ export default function GameScreen({ players, currentPlayer, currentPlayerIndex,
       <div className="flex-1 flex flex-col items-center justify-center">
         <motion.div
           variants={itemVariants}
-          className="text-center mb-10"
+          className="text-center mb-8 w-full max-w-sm"
         >
           <p className="text-gray-500 font-body text-sm mb-2 tracking-wider uppercase">Сейчас ходит</p>
           <motion.h2
@@ -87,16 +101,36 @@ export default function GameScreen({ players, currentPlayer, currentPlayerIndex,
             initial={{ opacity: 0, scale: 0.5, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             transition={{ type: 'spring', stiffness: 200, damping: 15 }}
-            className="font-display text-4xl sm:text-5xl md:text-6xl font-black neon-text-blue animate-glow-blue"
+            className="font-display text-4xl sm:text-5xl md:text-6xl font-black neon-text-blue animate-glow-blue mb-4"
           >
             {currentPlayer?.name}
           </motion.h2>
-          <motion.div
-            initial={{ scaleX: 0 }}
-            animate={{ scaleX: 1 }}
-            transition={{ delay: 0.3, duration: 0.5 }}
-            className="h-0.5 bg-gradient-to-r from-transparent via-neon-blue/50 to-transparent mt-4 mx-auto w-48"
-          />
+
+          {/* ─── MAIN PROGRESS BAR ─── */}
+          <div className="bg-dark-surface/90 border border-neon-blue/30 rounded-2xl p-4 backdrop-blur-md shadow-[0_0_15px_rgba(0,240,255,0.08)]">
+            <div className="flex justify-between items-center text-xs font-body mb-2">
+              <span className="text-gray-400">Прогресс игрока</span>
+              <span className="font-display font-bold text-neon-blue">
+                {currentPlayer?.score || 0} / 40 <span className="text-gray-500 font-normal">очков</span>
+              </span>
+            </div>
+
+            {/* Glowing neon progress track */}
+            <div className="w-full bg-gray-900 rounded-full h-3 p-0.5 border border-gray-800 relative overflow-hidden">
+              <motion.div
+                initial={{ width: 0 }}
+                animate={{ width: `${Math.min(100, Math.round(((currentPlayer?.score || 0) / 40) * 100))}%` }}
+                transition={{ duration: 0.6, ease: 'easeOut' }}
+                className="h-full bg-gradient-to-r from-neon-blue via-neon-purple to-neon-pink rounded-full shadow-[0_0_12px_#00f0ff] relative"
+              />
+            </div>
+
+            <p className="text-right text-[10px] text-gray-500 font-body mt-1.5">
+              {40 - (currentPlayer?.score || 0) > 0 
+                ? `Осталось ${40 - (currentPlayer?.score || 0)} очк. до победы` 
+                : 'Победа! 🎉'}
+            </p>
+          </div>
         </motion.div>
 
         <motion.p
